@@ -100,17 +100,26 @@ install_macos() {
   fetch "${BASE}/dribbble-macos-arm64.dmg" "${TMP}/dribbble.dmg"
 
   local mount app name
-  mount="$(hdiutil attach -nobrowse -readonly "${TMP}/dribbble.dmg" | awk -F'\t' 'END {print $NF}' | sed 's/[[:space:]]*$//')"
-  [ -d "$mount" ] || die "Could not mount the disk image."
+  mount="${TMP}/mnt"
+
+  # Naming the mount point removes the need to parse hdiutil's output for it,
+  # which is both fragile and the format Apple has started deprecating. Its
+  # stderr is kept rather than shown: on a healthy run it is only the
+  # deprecation notice, and on a failure it is the whole explanation.
+  if ! hdiutil attach -nobrowse -readonly -mountpoint "$mount" "${TMP}/dribbble.dmg" >/dev/null 2>"${TMP}/attach.err"; then
+    if [ -s "${TMP}/attach.err" ]; then cat "${TMP}/attach.err" >&2; fi
+    die "Could not mount the disk image."
+  fi
+  [ -d "$mount" ] || die "Disk image mounted nowhere."
 
   app="$(find "$mount" -maxdepth 1 -name '*.app' -print -quit)"
-  if [ -z "$app" ]; then hdiutil detach "$mount" -quiet || true; die "No .app inside the disk image."; fi
+  if [ -z "$app" ]; then hdiutil detach "$mount" -quiet >/dev/null 2>&1 || true; die "No .app inside the disk image."; fi
   name="$(basename "$app")"
 
   say "Copying ${name} to /Applications"
   rm -rf "/Applications/${name}" 2>/dev/null || $SUDO rm -rf "/Applications/${name}"
   cp -R "$app" /Applications/ 2>/dev/null || $SUDO cp -R "$app" /Applications/
-  hdiutil detach "$mount" -quiet || true
+  hdiutil detach "$mount" -quiet >/dev/null 2>&1 || true
 
   # The binary is not signed or notarised, so Gatekeeper would refuse it outright.
   xattr -dr com.apple.quarantine "/Applications/${name}" 2>/dev/null \

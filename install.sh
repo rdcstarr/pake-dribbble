@@ -24,12 +24,32 @@ command -v curl >/dev/null 2>&1 || die "curl is required."
 # The script is delivered on stdin, so nothing here may prompt.
 if [ "$(id -u)" -eq 0 ]; then SUDO=""; else SUDO="sudo"; fi
 
+os="$(uname -s)"
+arch="$(uname -m)"
+
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
+# A missing asset has two very different causes, and the difference is the whole
+# message. GitHub answers /releases/latest with a redirect: to /releases/tag/<v>
+# when a release exists, and to the bare /releases list when none does — which
+# tells the two apart without api.github.com and its 60 requests per hour.
+diagnose() {
+  local asset="$1" latest
+  latest="$(curl -sI --proto '=https' -o /dev/null -w '%{redirect_url}' "$RELEASES" || true)"
+
+  case "$latest" in
+    */releases/tag/*)
+      die "Release ${latest##*/} has no asset named ${asset} — nothing is published for ${os} ${arch}. See ${RELEASES}"
+      ;;
+    *)
+      die "No release has been published yet. If a build is still running it will appear at ${RELEASES} when it finishes: https://github.com/${REPO}/actions"
+      ;;
+  esac
+}
+
 fetch() {
-  curl -fL --proto '=https' --tlsv1.2 --progress-bar -o "$2" "$1" \
-    || die "Download failed: $1 — is there a published release yet? See ${RELEASES}"
+  curl -fL --proto '=https' --tlsv1.2 --progress-bar -o "$2" "$1" || diagnose "$(basename "$1")"
 }
 
 install_deb() {
@@ -99,9 +119,6 @@ install_macos() {
 
   say "Installed. Open it from /Applications."
 }
-
-os="$(uname -s)"
-arch="$(uname -m)"
 
 case "$os" in
   Linux)

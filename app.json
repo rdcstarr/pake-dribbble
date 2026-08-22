@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tw93/Pake/main/schema/pake.schema.json",
+  "url": "https://dribbble.com",
+  "name": "Dribbble",
+  "identifier": "tools.rec.dribbble",
+  "title": "Dribbble",
+  "icon": "icons/dribbble.png",
+  "width": 1400,
+  "height": 1000,
+  "minWidth": 1000,
+  "minHeight": 700,
+  "appVersion": "1.0.0",
+  "newWindow": true,
+  "safeDomain": "accounts.google.com,google.com",
+  "enableFind": true
+}

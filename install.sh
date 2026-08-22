@@ -37,13 +37,13 @@ install_deb() {
   fetch "${BASE}/dribbble-linux-amd64.deb" "${TMP}/dribbble.deb"
   say "Installing (dpkg may ask for your password)"
   $SUDO dpkg -i "${TMP}/dribbble.deb" || $SUDO apt-get -f install -y
-  say "Installed. Launch it from your applications menu, or run: dribbble"
+  say "Installed. Launch it from your applications menu, or run: pake-dribbble"
 }
 
 install_appimage() {
-  local bin="${HOME}/.local/bin/dribbble"
-  local desktop="${HOME}/.local/share/applications/dribbble.desktop"
-  local icon="${HOME}/.local/share/icons/hicolor/192x192/apps/dribbble.png"
+  local bin="${HOME}/.local/bin/pake-dribbble"
+  local desktop="${HOME}/.local/share/applications/pake-dribbble.desktop"
+  local icon="${HOME}/.local/share/icons/hicolor/192x192/apps/pake-dribbble.png"
 
   say "No dpkg here — installing the AppImage into ~/.local"
   fetch "${BASE}/dribbble-linux-amd64.AppImage" "${TMP}/dribbble.AppImage"
@@ -60,7 +60,7 @@ Type=Application
 Name=Dribbble
 Comment=Dribbble in a standalone window
 Exec=${bin}
-Icon=dribbble
+Icon=pake-dribbble
 Categories=Graphics;Network;
 Terminal=false
 DESKTOP
@@ -70,7 +70,7 @@ DESKTOP
 
   case ":${PATH}:" in
     *":${HOME}/.local/bin:"*) ;;
-    *) warn "~/.local/bin is not on your PATH — the menu entry works, the 'dribbble' command will not." ;;
+    *) warn "~/.local/bin is not on your PATH — the menu entry works, the 'pake-dribbble' command will not." ;;
   esac
   say "Installed to ${bin}"
 }

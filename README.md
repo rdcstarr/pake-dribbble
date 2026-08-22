@@ -14,6 +14,11 @@ Linux and macOS. On Linux the script installs the `.deb` where `dpkg` exists and
 falls back to the AppImage in `~/.local` where it does not. On Windows, download
 the `.msi` from [the latest release](https://github.com/rdcstarr/pake-dribbble/releases/latest).
 
+The command is `pake-dribbble` — Pake prefixes the Linux binary, and the
+AppImage path is named to match so it is the same either way. The menu entry the
+`.deb` writes reads lowercase, because a Debian package name has to be
+lowercase and the entry takes its name from it.
+
 ## Two things worth knowing
 
 **Sign in with email and password.** Google sign-in is unreliable inside an

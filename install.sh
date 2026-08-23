@@ -30,10 +30,20 @@ arch="$(uname -m)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-# A missing asset has two very different causes, and the difference is the whole
-# message. GitHub answers /releases/latest with a redirect: to /releases/tag/<v>
-# when a release exists, and to the bare /releases list when none does — which
-# tells the two apart without api.github.com and its 60 requests per hour.
+# GitHub answers /releases/latest with a redirect: to /releases/tag/<version>
+# when a release exists, and to the bare /releases list when none does. That
+# yields the published version without api.github.com and its 60 requests per
+# hour — printed before anything is downloaded, because "it installed but I
+# still have the old version" is otherwise invisible until the app is open.
+published_version() {
+  local latest
+  latest="$(curl -sI --proto '=https' -o /dev/null -w '%{redirect_url}' "$RELEASES" || true)"
+  case "$latest" in
+    */releases/tag/*) printf '%s' "${latest##*/}" ;;
+    *) printf '' ;;
+  esac
+}
+
 diagnose() {
   local asset="$1" latest
   latest="$(curl -sI --proto '=https' -o /dev/null -w '%{redirect_url}' "$RELEASES" || true)"
@@ -128,6 +138,12 @@ install_macos() {
 
   say "Installed. Open it from /Applications."
 }
+
+VERSION="$(published_version)"
+if [ -z "$VERSION" ]; then
+  die "No release has been published yet. If a build is still running it will appear at ${RELEASES} when it finishes: https://github.com/${REPO}/actions"
+fi
+say "Installing ${VERSION} for ${os} ${arch}"
 
 case "$os" in
   Linux)

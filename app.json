@@ -11,6 +11,6 @@
   "minHeight": 700,
   "appVersion": "1.0.0",
   "newWindow": true,
-  "safeDomain": "accounts.google.com,google.com",
+  "safeDomain": "dribbble.com,accounts.google.com,google.com",
   "enableFind": true
 }

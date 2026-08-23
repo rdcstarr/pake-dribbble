@@ -92,6 +92,13 @@ jobs:
             --app-version "$version" > result.json
           set -e
 
+      # safeDomain replaces the internal navigation set rather than adding to
+      # it, so leaving the app's own host out of it ships a build whose every
+      # link opens in the system browser. 1.0.0 shipped exactly that.
+      - name: Verify the app can still navigate to itself
+        shell: bash
+        run: node scripts/check-config.mjs
+
       - name: Collect artifacts under stable names
         shell: bash
         run: node scripts/collect.mjs ${{ matrix.platform }}

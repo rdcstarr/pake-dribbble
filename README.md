@@ -19,12 +19,19 @@ AppImage path is named to match so it is the same either way. The menu entry the
 `.deb` writes reads lowercase, because a Debian package name has to be
 lowercase and the entry takes its name from it.
 
-## Two things worth knowing
+## Three things worth knowing
 
 **Sign in with email and password.** Google sign-in is unreliable inside an
 embedded webview — providers routinely reject them. The app is built with
 `newWindow` and `safeDomain` set for Google's domains, which is the mitigation
 Pake documents, but it is not a guarantee.
+
+**Links to other sites open in your browser.** Dribbble itself stays inside the
+app — that is what `safeDomain` in `app.json` lists, alongside Google's domains
+for sign-in. Anything else, a portfolio someone linked to, opens where it
+belongs. `safeDomain` replaces the internal set rather than adding to it, so the
+app's own host has to appear in it; `scripts/check-config.mjs` fails the build
+when it does not.
 
 **The binaries are not signed.** macOS needs the quarantine flag cleared, which
 the installer does for you; if it cannot, open the app once with right-click →
